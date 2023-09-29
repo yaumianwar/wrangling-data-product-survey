@@ -15,7 +15,7 @@ question_mapping = pd.read_excel('data/question.xlsx').to_dict('records')
 
 print(f'TOTAL DATA ORGANIC: {len(organic_df.index)}; TOTAL DATA ADS: {len(ads_df.index)}')
 
-# convert Timestamp column datatype on ads dataframe 
+# change Timestamp column datatype on ads dataframe 
 ads_df['Timestamp']= pd.to_datetime(ads_df['Timestamp'])
 
 # concat organic and ads dataframe
@@ -24,10 +24,10 @@ df = pd.concat(frames, ignore_index=True)
 
 print(f'TOTAL DATA AFTER CONCATENATION: {len(df.index)}')
 
-# rename phone number column name based on column index to make it more readable
+# rename phone number column name based on column index
 rename_column_by_index(df, 1, 'phone_number')
 
-# rename question column name to make it more readable
+# rename question column name
 rename_question_column(df)
 
 print(f'TOTAL NULL VALUE IN EACH COLUMN \n{df.isnull().sum()}')

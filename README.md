@@ -9,6 +9,10 @@ This is the mini project from [Pacmann Academy](https://pacmann.io/) to create P
 4. Concat the data survey from ads and organic 
 5. Clean the survey data colum to make it more readable and easy to access
 6. Run the wrangling data process
+    - Each phone number and question choice should have 1 row on `data_clean`
+    - `choice` data value rules:
+        - 0 : if choice is not selected or choice 'D' in selected choice
+        - 1 : if choice is selected and  choice 'D' not in selected choice
 7. Save the result at `data/clean_data.csv`
 
 ### How to Run
@@ -17,3 +21,4 @@ This is the mini project from [Pacmann Academy](https://pacmann.io/) to create P
 3. Activate the `venv`: `source venv/bin/activate`
 4. Install dependencties: `pip install -r requirements.txt`
 5. Run the code: `python data_cleaning_process.py`
+6. Result: `data/clean_data.csv`

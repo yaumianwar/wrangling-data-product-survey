@@ -1,7 +1,7 @@
 # load time, pandas library and function from utils module
 import time
 import pandas as pd
-from utils import rename_column_by_index, rename_question_column, create_clean_data
+from utils import rename_column_by_index, rename_question_column, determine_choice_state
 
 # define program start time
 start_time = time.time()
@@ -11,7 +11,7 @@ organic_df = pd.read_excel('data/conjoint_survey_organic.xlsx')
 ads_df = pd.read_csv('data/conjoint_survey_ads.csv')
 
 # load question mapping data using pandas read_excel()
-question_mapping = pd.read_excel('data/question.xlsx').to_dict('records')
+question_mapping_df = pd.read_excel('data/question.xlsx')
 
 print(f'TOTAL DATA ORGANIC: {len(organic_df.index)}; TOTAL DATA ADS: {len(ads_df.index)}')
 
@@ -35,13 +35,26 @@ print(f'TOTAL NULL VALUE IN EACH COLUMN \n{df.isnull().sum()}')
 # define phone numbers data by using pandas unique()
 phone_numbers = list(df['phone_number'].unique())
 
-print(f'CHECK DUPLICATE DATA -> len df: {len(df.index)}; len unique phone number: {len(phone_numbers)}; isDuplicate?? {len(df.index) != len(phone_numbers)}')
+print(f'CHECK DUPLICATE DATA -> len df: {len(df.index)}; len unique phone number: {len(phone_numbers)}; \
+      isDuplicate?? {len(df.index) != len(phone_numbers)}')
 
 # get clean data
-clean_data_df = create_clean_data(df, phone_numbers, question_mapping)
+# create dataframe to store each phone number question
+phone_number_question_df = pd.melt(df, id_vars =['phone_number'], value_vars =[i for i in range (1,11)],\
+                  var_name ='question', value_name ='selected_choice').sort_values(by=['phone_number', 'question'])
 
-print(f'TOTAL CLEAN DATA SHOULD BE: {len(phone_numbers)} (LEN PHONE NUMBERS) * {len(question_mapping)} (LEN QUESTION MAPPING) \
-      = {len(phone_numbers) * len(question_mapping)}')
+# create clean data dataframe: 1 row for each phone number, question and choice
+clean_data_df = phone_number_question_df.merge(question_mapping_df, left_on='question', right_on='no')\
+      .sort_values(by=['phone_number', 'question', 'choice'])
+
+# update choice value to 1/0 based on selected choice
+clean_data_df['choice'] = clean_data_df.apply(lambda x: determine_choice_state(x['choice'], x['selected_choice']), axis=1)
+
+# drop unused column
+clean_data_df = clean_data_df.drop(['question', 'selected_choice', 'no'], axis=1)
+
+print(f'TOTAL CLEAN DATA SHOULD BE: {len(phone_numbers)} (LEN PHONE NUMBERS) * {len(question_mapping_df)} (LEN QUESTION MAPPING) \
+      = {len(phone_numbers) * len(question_mapping_df)}')
 print(f'TOTAL CLEAN DATA (ACTUAL): {len(clean_data_df.index)}')
 
 # save clean data to csv file

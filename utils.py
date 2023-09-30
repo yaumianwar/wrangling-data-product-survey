@@ -23,45 +23,14 @@ def rename_question_column(df):
         if question_str in col:
 
             # rename question column name
-            rename_column_by_index(df, index, col.split('.')[0])
+            rename_column_by_index(df, index, int(col.split('.')[0]))
 
 
-# function to create clean data
-# params -> dataframe object, list of phone numbers and question mapping
-# return -> clean data dataframe
-def create_clean_data(df, phone_numbers, question_mapping):
+# function to determine is given choice selected / not
+# params -> choice, selected choice
+# return -> choice state
+def determine_choice_state(choice, selected_choice):
+    
+    is_choice_selected = 1 if ((choice in selected_choice) and ('D.' not in selected_choice)) else 0
 
-    # define empty array to store clean data
-    clean_data = []
-
-    # iterate phone number
-    for phone_number in phone_numbers:
-
-        # get answers filter by phone_number
-        answer = df[df['phone_number'] == phone_number].iloc[0]
-
-        # iterate each question choice
-        for question in question_mapping:
-
-            # get answer (selected choice) by number of question
-            selected_choice = answer[str(question['no'])]
-
-            # determine is choice selected or not based on selected choice
-            is_choice_seleted = 1 if ((question['choice'] in selected_choice) and ('D.' not in selected_choice)) else 0
-
-            # create data dictionary to store clean data for each phone number and question choice
-            data = {
-                'user_phone': phone_number,
-                'choice': is_choice_seleted,
-                'skill': question['skill'],
-                'bentuk_program': question['bentuk_program'],
-                'harga_program': question['harga_program']
-            }
-            
-            # append data dictionary to clean_data array
-            clean_data.append(data)
-
-    # convert clean data to pandas dataframe
-    clean_data_df = pd.DataFrame.from_records(clean_data)
-
-    return clean_data_df
+    return is_choice_selected
